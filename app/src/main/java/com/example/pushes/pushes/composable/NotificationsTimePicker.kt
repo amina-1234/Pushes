@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.pushes.R
-import com.example.pushes.pushes.TimeConstraints
+import com.example.pushes.pushes.domain.TimeConstraints
 import com.example.pushes.ui.theme.DarkGrey
 import com.example.pushes.ui.theme.Typography
 import com.example.pushes.ui.theme.White

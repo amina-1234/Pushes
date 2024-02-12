@@ -98,7 +98,7 @@ fun PushesScreen(
                     width = 1.dp,
                     color = DarkGrey
                 ),
-                onClick = { uiListener.onAllowNotificationClick() }
+                onClick = { uiListener.onSkipStepClick() }
             ) {
                 Text(
                     text = stringResource(id = R.string.pushes_skip_step),

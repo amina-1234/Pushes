@@ -1,5 +1,7 @@
 package com.example.pushes.pushes
 
+import com.example.pushes.pushes.domain.TimeConstraints
+
 data class PushesState(
     val pledgeTime: TimeConstraints,
     val reviewTime: TimeConstraints,
@@ -14,5 +16,5 @@ data class PushesState(
     }
 }
 
-private val DEFAULT_PLEDGE_TIME= TimeConstraints(hour = 8, minute = 0)
-private val DEFAULT_REVIEW_TIME =  TimeConstraints(hour = 20, minute = 0)
+private val DEFAULT_PLEDGE_TIME = TimeConstraints(hour = 8, minute = 0)
+private val DEFAULT_REVIEW_TIME = TimeConstraints(hour = 20, minute = 0)

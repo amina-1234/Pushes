@@ -7,4 +7,11 @@
     <string name="pushes_notifications_time_description">*You\'ll receive notifications at these times</string>
     <string name="pushes_confirm">Allow notifications</string>
     <string name="pushes_skip_step">Not now</string>
+    <string name="pushes_permission_rationale_title">Your notifications are disabled</string>
+    <string name="pushes_permission_rationale_message">
+        To change this, you can go to Settings. Otherwise you will not receive reminders from us 😔
+    </string>
+
+    <string name="ok">OK</string>
+    <string name="settings">Settings</string>
 </resources>

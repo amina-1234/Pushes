@@ -1,4 +1,4 @@
-package com.example.pushes.pushes
+package com.example.pushes.pushes.domain
 
 class TimeConstraints(
     val hour: Int,
