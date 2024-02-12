@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Pushes</string>
+
+    <string name="pushes_importance_description">Users who enable notifications are more likely to stay on track!</string>
+    <string name="pushes_daily_pledge">Daily Pledge</string>
+    <string name="pushes_daily_review">Daily Review</string>
+    <string name="pushes_notifications_time_description">*You\'ll receive notifications at these times</string>
+    <string name="pushes_confirm">Allow notifications</string>
+    <string name="pushes_skip_step">Not now</string>
 </resources>
