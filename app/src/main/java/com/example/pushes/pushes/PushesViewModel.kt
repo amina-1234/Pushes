@@ -3,9 +3,10 @@ package com.example.pushes.pushes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pushes.pushes.composable.PushesScreenClickListener
+import com.example.pushes.pushes.domain.Error
 import com.example.pushes.pushes.domain.Event
 import com.example.pushes.pushes.domain.GoNext
-import com.example.pushes.pushes.domain.RequestNotificationPermission
+import com.example.pushes.pushes.domain.RequestNotificationPermissions
 import com.example.pushes.pushes.domain.ShowPermissionRationale
 import com.example.pushes.pushes.domain.TimeConstraints
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,9 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PushesViewModel(
-
-) : ViewModel(), PushesScreenClickListener {
+class PushesViewModel : ViewModel(), PushesScreenClickListener {
 
     private val state = MutableStateFlow(PushesState.initial())
     val uiState: StateFlow<PushesState> = state
@@ -34,11 +33,12 @@ class PushesViewModel(
 
     override fun onAllowNotificationClick() {
         viewModelScope.launch {
-            events.emit(RequestNotificationPermission)
+            events.emit(RequestNotificationPermissions)
         }
     }
 
     override fun onSkipStepClick() {
+        println("ahahah skip step")
         viewModelScope.launch {
             events.emit(GoNext)
         }
@@ -51,6 +51,19 @@ class PushesViewModel(
     }
 
     fun onNotificationPermissionGranted() {
+        println("ahahah complete step")
+        viewModelScope.launch {
+            try {
+                state.value = state.value.copy(isAllowButtonLoading = true)
 
+                // save times to prefs
+                // service.scheduleNotification()
+
+            } catch (e: Throwable) {
+                events.emit(Error(e))
+            } finally {
+                state.value = state.value.copy(isAllowButtonLoading = false)
+            }
+        }
     }
 }

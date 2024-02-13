@@ -2,6 +2,7 @@ package com.example.pushes.pushes.domain
 
 interface Event
 
-object RequestNotificationPermission : Event
+class Error(e: Throwable) : Event
+object RequestNotificationPermissions : Event
 object ShowPermissionRationale : Event
 object GoNext : Event

@@ -1,6 +1,7 @@
 package com.example.pushes.pushes
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -12,43 +13,40 @@ import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.pushes.App
 import com.example.pushes.ComposeFragment
 import com.example.pushes.R
 import com.example.pushes.pushes.composable.PushesScreen
 import com.example.pushes.pushes.domain.Event
 import com.example.pushes.pushes.domain.GoNext
-import com.example.pushes.pushes.domain.RequestNotificationPermission
+import com.example.pushes.pushes.domain.RequestNotificationPermissions
 import com.example.pushes.pushes.domain.ShowPermissionRationale
 import kotlinx.coroutines.launch
 
 class PushesFragment : ComposeFragment() {
 
-    private val viewModel by lazy { App.instance.serviceLocator.pushesViewModel }
+    private val viewModel: PushesViewModel by viewModels()
 
     private val notificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
             if (permissionGranted) {
-                viewModel.onNotificationPermissionGranted()
+                requestNotificationsPermissions()
             } else {
                 viewModel.onNotificationPermissionDenied()
             }
         }
 
-    private val permissionRationaleDialog by lazy {
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle(getString(R.string.pushes_permission_rationale_title))
-            setMessage(getString(R.string.pushes_permission_rationale_message))
-            setPositiveButton(getString(R.string.ok)) { _, _ ->
-                viewModel.onSkipStepClick()
-            }
-            setNegativeButton(getString(R.string.settings)) { _, _ ->
-                openSettings()
-            }
-            create()
-        }
+    private val alarmManager by lazy {
+        ContextCompat.getSystemService(requireContext(), AlarmManager::class.java)
     }
+
+    private val notificationsGranted: Boolean
+        get() = NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+
+    private val scheduleNotificationsGranted: Boolean
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager?.canScheduleExactAlarms() == true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -68,21 +66,32 @@ class PushesFragment : ComposeFragment() {
 
     private fun handleEvent(event: Event) {
         when (event) {
-            RequestNotificationPermission -> requestNotificationsPermission()
-            ShowPermissionRationale -> permissionRationaleDialog.show()
+            RequestNotificationPermissions -> requestNotificationsPermissions()
+            ShowPermissionRationale -> showPermissionsRationale()
             GoNext -> {}
         }
     }
 
-    private fun requestNotificationsPermission() {
-        if (NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()) {
-            viewModel.onNotificationPermissionGranted()
+    private fun requestNotificationsPermissions() {
+        when {
+            notificationsGranted.not() -> requestNotificationPermission()
+            scheduleNotificationsGranted.not() -> scheduleNotificationsRationaleDialog.show()
+            else -> viewModel.onNotificationPermissionGranted()
+        }
+    }
+
+    private fun showPermissionsRationale() {
+        when {
+            notificationsGranted.not() -> notificationsRationaleDialog.show()
+            scheduleNotificationsGranted.not() -> scheduleNotificationsRationaleDialog.show()
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                viewModel.onNotificationPermissionDenied()
-            }
+            viewModel.onNotificationPermissionDenied()
         }
     }
 
@@ -93,6 +102,38 @@ class PushesFragment : ComposeFragment() {
                 Uri.fromParts("package", activity?.packageName, null)
             )
             activity?.startActivity(intent)
+        }
+    }
+
+    private val notificationsRationaleDialog by lazy {
+        AlertDialog.Builder(requireContext()).apply {
+
+            setTitle(getString(R.string.pushes_permission_rationale_title))
+            setMessage(getString(R.string.pushes_permission_rationale_message))
+
+            setPositiveButton(getString(R.string.ok)) { _, _ ->
+                viewModel.onSkipStepClick()
+            }
+            setNegativeButton(getString(R.string.settings)) { _, _ ->
+                openSettings()
+            }
+            create()
+        }
+    }
+
+    private val scheduleNotificationsRationaleDialog by lazy {
+        AlertDialog.Builder(requireContext()).apply {
+
+            setTitle(getString(R.string.pushes_schedule_rationale_title))
+            setMessage(getString(R.string.pushes_schedule_rationale_message))
+
+            setPositiveButton(getString(R.string.settings)) { _, _ ->
+                openSettings()
+            }
+            setNegativeButton(getString(R.string.pushes_skip_step)) { _, _ ->
+                viewModel.onSkipStepClick()
+            }
+            create()
         }
     }
 }

@@ -11,6 +11,10 @@
     <string name="pushes_permission_rationale_message">
         To change this, you can go to Settings. Otherwise you will not receive reminders from us 😔
     </string>
+    <string name="pushes_schedule_rationale_title">Notification scheduling is disabled</string>
+    <string name="pushes_schedule_rationale_message">
+        To change this, you can go to Settings. Otherwise we can\'t set reminders and you won\'t see them 🙃
+    </string>
 
     <string name="ok">OK</string>
     <string name="settings">Settings</string>
