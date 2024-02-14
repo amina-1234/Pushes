@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -105,6 +106,17 @@ class PushesFragment : ComposeFragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun openScheduleNotificationsSettings() {
+        runCatching {
+            val intent = Intent(
+                Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                Uri.fromParts("package", activity?.packageName, null)
+            )
+            activity?.startActivity(intent)
+        }
+    }
+
     private val notificationsRationaleDialog by lazy {
         AlertDialog.Builder(requireContext()).apply {
 
@@ -128,7 +140,7 @@ class PushesFragment : ComposeFragment() {
             setMessage(getString(R.string.pushes_schedule_rationale_message))
 
             setPositiveButton(getString(R.string.settings)) { _, _ ->
-                openSettings()
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) openScheduleNotificationsSettings()
             }
             setNegativeButton(getString(R.string.pushes_skip_step)) { _, _ ->
                 viewModel.onSkipStepClick()

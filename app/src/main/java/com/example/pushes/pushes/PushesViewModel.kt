@@ -2,6 +2,9 @@ package com.example.pushes.pushes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pushes.notifications.NotificationItem
+import com.example.pushes.notifications.NotificationType
+import com.example.pushes.App
 import com.example.pushes.pushes.composable.PushesScreenClickListener
 import com.example.pushes.pushes.domain.Error
 import com.example.pushes.pushes.domain.Event
@@ -23,6 +26,8 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
     private val events: MutableSharedFlow<Event> = MutableSharedFlow()
     val eventFlow: SharedFlow<Event> = events
 
+    private val scheduler by lazy { App.instance.serviceLocator.notificationScheduler }
+
     override fun onPledgeTimeChange(hour: Int, minute: Int) {
         state.value = state.value.copy(pledgeTime = TimeConstraints(hour, minute))
     }
@@ -38,6 +43,7 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
     }
 
     override fun onSkipStepClick() {
+        scheduler.cancelAll()
         println("ahahah skip step")
         viewModelScope.launch {
             events.emit(GoNext)
@@ -51,13 +57,38 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
     }
 
     fun onNotificationPermissionGranted() {
-        println("ahahah complete step")
         viewModelScope.launch {
             try {
                 state.value = state.value.copy(isAllowButtonLoading = true)
 
-                // save times to prefs
-                // service.scheduleNotification()
+                // todo save times to prefs
+
+                if (state.value.pledgeTime.time == state.value.reviewTime.time) {
+                    val notification = NotificationItem(
+                        hour = state.value.pledgeTime.hour,
+                        minute = state.value.pledgeTime.minute,
+                        title = "Time for check up!",
+                        body = "la-la-la",
+                        type = NotificationType.DAILY_REMINDER
+                    )
+                    scheduler.schedule(notification)
+                } else {
+                    val pledgeNotification = NotificationItem(
+                        hour = state.value.pledgeTime.hour,
+                        minute = state.value.pledgeTime.minute,
+                        title = "Pledge",
+                        body = "la-la-la",
+                        type = NotificationType.DAILY_PLEDGE
+                    )
+                    val reviewNotification = NotificationItem(
+                        hour = state.value.reviewTime.hour,
+                        minute = state.value.reviewTime.minute,
+                        title = "Review",
+                        body = "la-la-la",
+                        type = NotificationType.DAILY_REVIEW
+                    )
+                    scheduler.schedule(pledgeNotification, reviewNotification)
+                }
 
             } catch (e: Throwable) {
                 events.emit(Error(e))

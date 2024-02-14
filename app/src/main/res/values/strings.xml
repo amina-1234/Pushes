@@ -16,6 +16,13 @@
         To change this, you can go to Settings. Otherwise we can\'t set reminders and you won\'t see them 🙃
     </string>
 
+    <string name="notification_daily_reminder_title">Time for check up!</string>
+    <string name="notification_daily_reminder_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit</string>
+    <string name="notification_daily_pledge_title">Time for daily pledge</string>
+    <string name="notification_daily_pledge_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit</string>
+    <string name="notification_daily_review_title">Time for daily review</string>
+    <string name="notification_daily_review_body">Lorem ipsum dolor sit amet, consectetur adipiscing elit</string>
+
     <string name="ok">OK</string>
     <string name="settings">Settings</string>
 </resources>
