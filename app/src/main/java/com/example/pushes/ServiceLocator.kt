@@ -1,6 +1,7 @@
 package com.example.pushes
 
 import android.content.Context
+import com.example.pushes.notifications.NotificationsProvider
 import com.example.pushes.notifications.intent_builder.NotificationAlarmIntentBuilder
 import com.example.pushes.notifications.intent_builder.NotificationAlarmIntentBuilderImpl
 import com.example.pushes.notifications.notification_manager.PushNotificationManager
@@ -20,5 +21,9 @@ class ServiceLocator(context: Context) {
 
     val notificationAlarmIntentBuilder: NotificationAlarmIntentBuilder by lazy {
         NotificationAlarmIntentBuilderImpl(context)
+    }
+
+    val notificationsProvider: NotificationsProvider by lazy {
+        NotificationsProvider(context)
     }
 }

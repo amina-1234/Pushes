@@ -20,13 +20,14 @@ import kotlinx.coroutines.launch
 
 class PushesViewModel : ViewModel(), PushesScreenClickListener {
 
+    private val scheduler by lazy { App.instance.serviceLocator.notificationScheduler }
+    private val notificationsProvider by lazy { App.instance.serviceLocator.notificationsProvider }
+
     private val state = MutableStateFlow(PushesState.initial())
     val uiState: StateFlow<PushesState> = state
 
     private val events: MutableSharedFlow<Event> = MutableSharedFlow()
     val eventFlow: SharedFlow<Event> = events
-
-    private val scheduler by lazy { App.instance.serviceLocator.notificationScheduler }
 
     override fun onPledgeTimeChange(hour: Int, minute: Int) {
         state.value = state.value.copy(pledgeTime = TimeConstraints(hour, minute))
@@ -43,8 +44,6 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
     }
 
     override fun onSkipStepClick() {
-        scheduler.cancelAll()
-        println("ahahah skip step")
         viewModelScope.launch {
             events.emit(GoNext)
         }
@@ -61,40 +60,34 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
             try {
                 state.value = state.value.copy(isAllowButtonLoading = true)
 
-                // todo save times to prefs
-
-                if (state.value.pledgeTime.time == state.value.reviewTime.time) {
-                    val notification = NotificationItem(
-                        hour = state.value.pledgeTime.hour,
-                        minute = state.value.pledgeTime.minute,
-                        title = "Time for check up!",
-                        body = "la-la-la",
-                        type = NotificationType.DAILY_REMINDER
-                    )
-                    scheduler.schedule(notification)
-                } else {
-                    val pledgeNotification = NotificationItem(
-                        hour = state.value.pledgeTime.hour,
-                        minute = state.value.pledgeTime.minute,
-                        title = "Pledge",
-                        body = "la-la-la",
-                        type = NotificationType.DAILY_PLEDGE
-                    )
-                    val reviewNotification = NotificationItem(
-                        hour = state.value.reviewTime.hour,
-                        minute = state.value.reviewTime.minute,
-                        title = "Review",
-                        body = "la-la-la",
-                        type = NotificationType.DAILY_REVIEW
-                    )
-                    scheduler.schedule(pledgeNotification, reviewNotification)
-                }
+                // todo save time to prefs before scheduling
+                scheduleNotifications()
 
             } catch (e: Throwable) {
                 events.emit(Error(e))
             } finally {
                 state.value = state.value.copy(isAllowButtonLoading = false)
             }
+        }
+    }
+
+    private fun scheduleNotifications() {
+        if (state.value.pledgeTime.time == state.value.reviewTime.time) {
+            val notification = notificationsProvider.getNotification(
+                time = state.value.pledgeTime,
+                type = NotificationType.DAILY_REMINDER
+            )
+            scheduler.schedule(notification)
+        } else {
+            val pledgeNotification = notificationsProvider.getNotification(
+                time = state.value.pledgeTime,
+                type = NotificationType.DAILY_PLEDGE
+            )
+            val reviewNotification = notificationsProvider.getNotification(
+                time = state.value.reviewTime,
+                type = NotificationType.DAILY_REVIEW
+            )
+            scheduler.schedule(pledgeNotification, reviewNotification)
         }
     }
 }

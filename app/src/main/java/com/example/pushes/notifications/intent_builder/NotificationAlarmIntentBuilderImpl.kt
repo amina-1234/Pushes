@@ -12,20 +12,15 @@ class NotificationAlarmIntentBuilderImpl(
 ) : NotificationAlarmIntentBuilder {
 
     override fun buildIntent(notification: NotificationItem): PendingIntent {
+        val intent = Intent(context, NotificationsReceiver::class.java).apply {
+            putExtra(NotificationItem.KEY, notification)
+        }
         return PendingIntent.getBroadcast(
             context,
             generateRequestCode(notification),
-            createIntentWithExtras(notification),
-            PendingIntent.FLAG_IMMUTABLE
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-    }
-
-    private fun createIntentWithExtras(notification: NotificationItem): Intent {
-        return Intent(context, NotificationsReceiver::class.java).apply {
-            putExtra("id", notification.id)
-            putExtra("title", notification.title)
-            putExtra("body", notification.body)
-        }
     }
 
     // Set the same code for daily reminders of the same type
@@ -33,7 +28,7 @@ class NotificationAlarmIntentBuilderImpl(
     private fun generateRequestCode(notification: NotificationItem): Int {
         return when (notification.type) {
             NotificationType.DAILY_REMINDER, NotificationType.DAILY_PLEDGE, NotificationType.DAILY_REVIEW ->
-                notification.type.ordinal
+                notification.type.code
 
             else -> System.currentTimeMillis().toInt()
         }

@@ -10,6 +10,7 @@ import com.example.pushes.App
 import com.example.pushes.notifications.NotificationsReceiver
 import com.example.pushes.notifications.intent_builder.NotificationAlarmIntentBuilder
 import com.example.pushes.notifications.NotificationItem
+import com.example.pushes.notifications.NotificationType
 import java.util.Calendar
 
 class NotificationSchedulerImpl(
@@ -38,17 +39,17 @@ class NotificationSchedulerImpl(
         notifications.forEach { notification -> schedule(notification) }
     }
 
-    override fun cancelAll() {
+    // Cancels all scheduled notifications of this type
+    override fun cancel(notificationType: NotificationType) {
         val intent = Intent(context, NotificationsReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            notificationType.code,
             intent,
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager?.cancel(pendingIntent)
     }
-
 
     private fun schedule(notification: NotificationItem) {
         val notificationTime = getNextNotificationTime(notification)
@@ -67,7 +68,7 @@ class NotificationSchedulerImpl(
         }
 
         val currentTime = Calendar.getInstance()
-        if (currentTime.after(calendar)) {
+        if (currentTime.after(calendar) || currentTime.compareTo(calendar) == 0) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
