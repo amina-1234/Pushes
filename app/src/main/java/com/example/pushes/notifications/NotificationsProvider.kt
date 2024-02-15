@@ -8,6 +8,26 @@ class NotificationsProvider(
     private val context: Context
 ) {
 
+    fun getScheduledNotifications(): List<NotificationItem> {
+        // call to prefs or smth
+        return listOf(
+            NotificationItem(
+                hour = 8,
+                minute = 0,
+                title = getTitle(NotificationType.DAILY_REVIEW),
+                body = getBody(NotificationType.DAILY_REVIEW),
+                type = NotificationType.DAILY_REVIEW
+            ),
+            NotificationItem(
+                hour = 20,
+                minute = 0,
+                title = getTitle(NotificationType.DAILY_REVIEW),
+                body = getBody(NotificationType.DAILY_REVIEW),
+                type = NotificationType.DAILY_REVIEW
+            )
+        )
+    }
+
     fun getNotification(time: TimeConstraints, type: NotificationType): NotificationItem {
         return NotificationItem(
             hour = time.hour,

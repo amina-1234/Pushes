@@ -61,33 +61,15 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
                 state.value = state.value.copy(isAllowButtonLoading = true)
 
                 // todo save time to prefs before scheduling
-                scheduleNotifications()
+                val scheduledNotifications = notificationsProvider.getScheduledNotifications()
+                scheduler.schedule(*scheduledNotifications.toTypedArray())
 
+                events.emit(GoNext)
             } catch (e: Throwable) {
                 events.emit(Error(e))
             } finally {
                 state.value = state.value.copy(isAllowButtonLoading = false)
             }
-        }
-    }
-
-    private fun scheduleNotifications() {
-        if (state.value.pledgeTime.time == state.value.reviewTime.time) {
-            val notification = notificationsProvider.getNotification(
-                time = state.value.pledgeTime,
-                type = NotificationType.DAILY_REMINDER
-            )
-            scheduler.schedule(notification)
-        } else {
-            val pledgeNotification = notificationsProvider.getNotification(
-                time = state.value.pledgeTime,
-                type = NotificationType.DAILY_PLEDGE
-            )
-            val reviewNotification = notificationsProvider.getNotification(
-                time = state.value.reviewTime,
-                type = NotificationType.DAILY_REVIEW
-            )
-            scheduler.schedule(pledgeNotification, reviewNotification)
         }
     }
 }
