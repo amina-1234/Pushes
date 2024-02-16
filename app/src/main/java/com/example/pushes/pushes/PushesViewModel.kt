@@ -2,8 +2,6 @@ package com.example.pushes.pushes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pushes.notifications.NotificationItem
-import com.example.pushes.notifications.NotificationType
 import com.example.pushes.App
 import com.example.pushes.pushes.composable.PushesScreenClickListener
 import com.example.pushes.pushes.domain.Error
@@ -60,7 +58,9 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
             try {
                 state.value = state.value.copy(isAllowButtonLoading = true)
 
-                // todo save time to prefs before scheduling
+                // todo save time to prefs before scheduling.
+                //  Or create a repository to combine all the logic
+                //  of save+receive+check+schedule
                 val scheduledNotifications = notificationsProvider.getScheduledNotifications()
                 scheduler.schedule(*scheduledNotifications.toTypedArray())
 

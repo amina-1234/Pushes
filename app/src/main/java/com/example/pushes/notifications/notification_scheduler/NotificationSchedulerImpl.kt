@@ -2,18 +2,15 @@ package com.example.pushes.notifications.notification_scheduler
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.example.pushes.App
-import com.example.pushes.notifications.boot_receiver.BootReceiver
-import com.example.pushes.notifications.NotificationsReceiver
-import com.example.pushes.notifications.intent_builder.NotificationAlarmIntentBuilder
 import com.example.pushes.notifications.NotificationItem
 import com.example.pushes.notifications.NotificationType
+import com.example.pushes.notifications.NotificationsReceiver
+import com.example.pushes.notifications.intent_builder.NotificationAlarmIntentBuilder
 import java.util.Calendar
 
 class NotificationSchedulerImpl(
@@ -39,7 +36,6 @@ class NotificationSchedulerImpl(
         if (canScheduleAlarm.not())
             throw IllegalStateException("The application has no rights to schedule notifications")
 
-        enableBootReceiver()
         notifications.forEach { notification -> schedule(notification) }
     }
 
@@ -77,16 +73,5 @@ class NotificationSchedulerImpl(
         }
 
         return calendar
-    }
-
-    // todo: here..?
-    private fun enableBootReceiver() {
-        val receiver = ComponentName(context, BootReceiver::class.java)
-
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
     }
 }
