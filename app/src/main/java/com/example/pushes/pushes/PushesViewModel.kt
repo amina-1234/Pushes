@@ -3,6 +3,7 @@ package com.example.pushes.pushes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pushes.App
+import com.example.pushes.notifications.NotificationType
 import com.example.pushes.pushes.composable.PushesScreenClickListener
 import com.example.pushes.pushes.domain.Error
 import com.example.pushes.pushes.domain.Event
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 
 class PushesViewModel : ViewModel(), PushesScreenClickListener {
 
+    private val localStorage by lazy { App.instance.serviceLocator.localStorage }
     private val scheduler by lazy { App.instance.serviceLocator.notificationScheduler }
     private val notificationsProvider by lazy { App.instance.serviceLocator.notificationsProvider }
 
@@ -58,9 +60,16 @@ class PushesViewModel : ViewModel(), PushesScreenClickListener {
             try {
                 state.value = state.value.copy(isAllowButtonLoading = true)
 
-                // todo save time to prefs before scheduling.
-                //  Or create a repository to combine all the logic
+                //  create a repository to combine all the logic
                 //  of save+receive+check+schedule
+                localStorage.saveNotificationTime(
+                    notificationType = NotificationType.DAILY_PLEDGE,
+                    time = state.value.pledgeTime
+                )
+                localStorage.saveNotificationTime(
+                    notificationType = NotificationType.DAILY_REVIEW,
+                    time = state.value.reviewTime
+                )
                 val scheduledNotifications = notificationsProvider.getScheduledNotifications()
                 scheduler.schedule(*scheduledNotifications.toTypedArray())
 
