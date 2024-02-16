@@ -29,10 +29,10 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".notifications.NotificationsReceiver" />
+        <receiver android:name=".presentation.notifications.receiver.NotificationAlarmReceiver" />
 
         <receiver
-            android:name=".notifications.receiver.BootReceiver"
+            android:name=".presentation.notifications.receiver.BootReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -41,7 +41,7 @@
         </receiver>
 
         <receiver
-            android:name=".notifications.receiver.ScheduleAlarmPermissionReceiver"
+            android:name=".presentation.notifications.receiver.ScheduleAlarmPermissionReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -50,7 +50,7 @@
         </receiver>
 
         <receiver
-            android:name=".notifications.receiver.TimeChangeReceiver"
+            android:name=".presentation.notifications.receiver.TimeChangeReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

@@ -2,7 +2,7 @@ package com.example.pushes
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.pushes.pushes.PushesFragment
+import com.example.pushes.presentation.pushes.PushesFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
